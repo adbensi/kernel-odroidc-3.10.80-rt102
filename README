@@ -1,0 +1,93 @@
+Linux odroid C1 3.10.80-rt102 SMP PREEMPT RT BRST 2016 armv7l GNU/Linux
+-----------------------------------------------------------------------
+
+ You can build it on the odroid C1
+ Issues on the ethernet network fixed
+ Initial commit 22/01/2016 21Hr - ADBensi
+
+ apt-get install git lzop u-boot-tools build-essential gcc libncurses5-dev bc
+
+ git clone --depth 1 https://github.com/hardkernel/linux.git -b odroidc-3.10.y
+
+ cd linux
+
+ make
+ make modules
+ make uImage
+ make modules_install
+ cp arch/arm/boot/uImage arch/arm/boot/dts/meson8b_odroidc.dtb /boot/
+ cp .config /boot/config-3.10.80-rt-Diet
+
+ make clean
+ 
+ cd ..
+ tar -czf linux.tgz linux
+
+ 
+Thermal and WatchDog Disabled with light kernel /boot/uImage 4.53MB
+-------------------------------------------------------------------
+cyclictest --smp -p99 -m -n
+# /dev/cpu_dma_latency set to 0us
+policy: fifo: loadavg: 1.12 0.79 0.37 2/143 1151          
+T: 0 ( 1139) P:99 I:1000 C: 221280 Min:      6 Act:   14 Avg:   15 Max:      44
+T: 1 ( 1140) P:99 I:1500 C: 147505 Min:      7 Act:   20 Avg:   15 Max:      59
+T: 2 ( 1141) P:99 I:2000 C: 110617 Min:      6 Act:   13 Avg:   15 Max:      46
+T: 3 ( 1142) P:99 I:2500 C:  88484 Min:      6 Act:   12 Avg:   13 Max:      39
+
+cyclictest -l1000000 -m -n -a0 -t1 -p99 -i400 -q
+# /dev/cpu_dma_latency set to 0us
+T: 0 ( 1153) P:99 I:400 C:1000000 Min:      6 Act:    8 Avg:    7 Max:      32
+
+stress --cpu 4 --io 4 --vm 2 --hdd 1 --vm-bytes 128M --timeout 2500s
+root@odroid:~# cyclictest -D1d -m -n -a0 -t1 -p99 -i1000
+# /dev/cpu_dma_latency set to 0us
+policy: fifo: loadavg: 13.89 10.95 5.59 8/154 1312           
+T: 0 ( 1280) P:99 I:1000 C: 460545 Min:      7 Act:   11 Avg:   17 Max:      54
+
+/proc/interrupts
+            CPU0       CPU1       CPU2       CPU3       
+ 35:        438          0     115322          0       GIC  am_osd_vsync, vsync
+ 40:          0      24511          0          0       GIC  eth0
+ 60:          2          0          0          0       GIC  sdio
+ 62:          0          0          0          0       GIC  dwc_otg, dwc_otg_hcd:usb2, dwc_otg_pcd
+ 63:          0          0          0   20226341       GIC  dwc_otg, dwc_otg_hcd:usb1
+ 89:          1          0          0          0       GIC  amhdmitx
+ 92:     371648          0          0          0       GIC  MESON TIMER-F
+ 93:          0     372473          0          0       GIC  MESON TIMER-G
+ 94:          0          0     372716          0       GIC  MESON TIMER-H
+ 95:          0          0          0     370672       GIC  MESON TIMER-I
+107:          0          0          0          0       GIC  uart_b_ttyS2:
+110:      34858          0          0          0       GIC  sdhc
+121:     115756          0          0          0       GIC  rdma, osd_rdma
+122:          0          0          0          0       GIC  uart_ao_ttyS0:
+178:          0          0          0          0       GIC  audiodsp_mailbox
+182:          0          0          0          0       GIC  ge2d irq
+183:          0          0          0          0       GIC  amhdmitx-aocec
+192:          0          0          0          0       GIC  Mali_GP
+193:          0          0          0          0       GIC  Mali_GP_MMU
+194:          0          0          0          0       GIC  Mali_PP_Broadcast
+196:          0          0          0          0       GIC  Mali_PP0
+197:          0          0          0          0       GIC  Mali_PP0_MMU
+198:          0          0          0          0       GIC  Mali_PP1
+199:          0          0          0          0       GIC  Mali_PP1_MMU
+IPI0:          0          0          0          0  CPU wakeup interrupts
+IPI1:          0          0          0          0  Timer broadcast interrupts
+IPI2:      35580      26851      29673      14186  Rescheduling interrupts
+IPI3:          5          6          7          6  Function call interrupts
+IPI4:          9          0         12          0  Single function call interrupts
+IPI5:          0          0          0          0  CPU stop interrupts
+IPI6:          0          0          0          0  CPU backtrace
+Err:          0
+
+----------------------------------------------------------------------------------
+
+ How to patch new kernel
+ git clone --depth 1 https://github.com/hardkernel/linux.git -b odroidc-3.10.y
+
+ wget https://www.kernel.org/pub/linux/kernel/projects/rt/3.10/patch-3.10.94-rt102.patch.gz
+ gunzip patch-3.10.94-rt102.patch.gz
+
+ cd linux
+ cat ../patch-3.10.94-rt102.patch |patch -p1  
+
+ Please, report to me too about new features :)
