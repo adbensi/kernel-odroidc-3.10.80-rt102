@@ -7,9 +7,9 @@ Linux odroid C1 3.10.80-rt102 SMP PREEMPT RT BRST 2016 armv7l GNU/Linux
 
  apt-get install git lzop u-boot-tools build-essential gcc libncurses5-dev bc
 
- git clone --depth 1 https://github.com/hardkernel/linux.git -b odroidc-3.10.y
+ git clone --depth 1 https://github.com/adbensi/kernel-odroidc-3.10.80-rt102.git -b master
 
- cd linux
+ cd kernel-odroidc-3.10.80-rt102
 
  make
  make modules
@@ -21,7 +21,7 @@ Linux odroid C1 3.10.80-rt102 SMP PREEMPT RT BRST 2016 armv7l GNU/Linux
  make clean
  
  cd ..
- tar -czf linux.tgz linux
+ tar -czf backup-kernel-odroidc-3.10.80-rt102.tgz kernel-odroidc-3.10.80-rt102
 
  
 Thermal and WatchDog Disabled with light kernel /boot/uImage 4.53MB
